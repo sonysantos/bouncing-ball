@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+
+<head>
+  <title>Boucing Basket Ball</title>
+</head>
+
+<body>
+  <div id="container" class="svg-container"></div>
+
+  <script>
+    wh = [20, 9, 1]
+    var factor = 30
+    var [w, h, r] = wh.map(x => x * factor)
+    const s2 = Math.sqrt(2) / 2;
+    var strokeW = factor * 2 / 30;
+    var dur = "2s"
+
+    var filters = `<defs>
+<radialGradient id="ballGrad" cx="0" cy="0" r="1.5" fx="25%" fy="25%">
+  <stop stop-color="white" offset="0%" />
+  <stop stop-color="#f80" offset="20%" />
+  <stop stop-color="black" offset="100%" />
+</radialGradient>
+
+<filter id="shadowBlur">
+  <feGaussianBlur in="SourceGraphic" stdDeviation="30">
+    <animate attributeName="stdDeviation" values="5;0;5" dur="${dur}" repeatCount="indefinite" />
+  </feGaussianBlur>
+</filter>
+</defs>`
+    var ball = `
+<g id="ball" transform-origin="center">
+<ellipse id="ellipseBall" cx="${w / 2}" cy="${factor}" rx="${r}" ry="${r}" stroke="black" stroke-width="${strokeW}" fill="url(#ballGrad)">
+</ellipse>
+<g id="ballStrokes">
+  <path d="M ${w / 2 - r} ${r} h ${r * 2}" stroke="black" stroke-width="${strokeW}" />
+  <path d="M ${w / 2} 0 v ${r * 2}" stroke="black" stroke-width="${strokeW}" />
+  <path d="M ${w / 2 - s2 * r} ${r * (1 - s2)} q ${r * s2} ${r * s2} 0 ${r * s2 * 2}" stroke="black" stroke-width="${strokeW}" fill="none" />
+  <path d="M ${w / 2 + s2 * r} ${r * (1 - s2)} q ${-r * s2} ${r * s2} 0 ${r * s2 * 2}" stroke="black" stroke-width="${strokeW}" fill="none" />
+  
+  <animateTransform
+  attributeName="transform"
+  type="rotate"
+  from="0 ${w / 2} ${r}"
+  to="180 ${w / 2} ${r}"
+  dur="${dur}"
+  repeatCount="indefinite" />
+</g>
+
+<animateTransform
+  attributeName="transform"
+  type="translate"
+  values="0 0;0 ${factor * 6};0 0"
+  keySplines="0.3 0 0.8 0.3; 0.2 0.3 0.3 1"
+  keyTimes="0;0.5;1"
+  calcMode="spline"
+  dur="${dur}"
+  repeatCount="indefinite" />
+
+<animateTransform
+  attributeName="transform"
+  type="scale"
+  additive="sum"
+  values="1 1; 1 1; 1.2 0.85; 1 1; 1 1"
+  keyTimes="0;0.45;0.5;0.55;1"
+  dur="${dur}"
+  repeatCount="indefinite" />
+
+</g>
+`
+    var shadow = `<ellipse id='shadow' cx="${w / 2}" cy="${factor * 8}" rx="${r}" ry="${r / 4}" stroke="none" stroke-width="0" fill="gray" filter="url(#shadowBlur)">
+<animate
+  attributeName="cx"
+  values="${w * 3 / 4};${w / 2};${w * 3 / 4}"
+  keySplines="0.3 0 0.8 0.3; 0.2 0.3 0.3 1"
+  keyTimes="0;0.5;1"
+  calcMode="spline"
+  dur="${dur}"
+  repeatCount="indefinite" />
+
+<animate
+  attributeName="rx"
+  values="${r / 2};${r};${r * 1.2};${r};${r / 2}"
+  keySplines="0.3 0 0.8 0.2; 0.5 0.5 0.5 0.5; 0.5 0.5 0.5 0.5; 0.2 0.2 0.3 1"
+  keyTimes="0;0.45;0.5;0.55;1"
+  calcMode="spline"
+  dur="${dur}"
+  repeatCount="indefinite" />
+
+<animate
+  attributeName="ry"
+  values="${r / 8};${r / 4};${r * 0.3};${r / 4};${r / 8}"
+  keySplines="0.3 0 0.8 0.2; 0.5 0.5 0.5 0.5; 0.5 0.5 0.5 0.5; 0.2 0.2 0.3 1"
+  keyTimes="0;0.45;0.5;0.55;1"
+  calcMode="spline"
+  dur="${dur}"
+  repeatCount="indefinite" />
+
+</ellipse>`
+
+    // var frame = `<svg id='frame' width="${w}" height="${h}">${filters+shadow+ball}</svg>`
+    var frame = `<svg id='frame' class="svg-content" viewBox="0 -${strokeW} ${w} ${h}">${filters + shadow + ball}</svg>`
+
+    document.getElementById('container').innerHTML = frame;
+  </script>
+</body>
+<!--
+  #frame {
+    border: 1px solid black;
+    overflow: hidden;
+  }
+-->
