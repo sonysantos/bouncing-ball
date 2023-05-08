@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+
+<head>
+  <title>Boucing Basket Ball via CSS</title>
+</head>
+
+<body>
+  <div id="container"></div>
+
+  <script>
+    var wh = [16, 9, 1]
+    var factor = 30
+
+    var [w, h, r] = wh.map(x => x * factor)
+
+    var squish = 85
+
+    var position = "relative";
+
+    var css = `<style>
+
+#frame {
+  width: ${w}px;
+  height: ${h}px;
+  border: 1px solid black;
+}
+
+#ball {
+  z-index: 2;
+  background: radial-gradient(circle at 25% 25%, #fff 0, #f00 20%, #000);
+  width: ${2 * r}px;
+  height: ${2 * r}px;
+  top: ${factor}px;
+  left: ${w / 2 - r}px;
+  position: ${position};
+  clip-path: ellipse(${r}px ${r}px);
+  animation: squish 1s ease-in forwards infinite alternate; 
+}
+
+@keyframes squish {
+  ${squish}% {
+    transform: scale(100%, 100%) translateY(${6 * r * squish / 100}px); 
+  }
+  100% {
+    transform: scale(120%, 85%) translateY(${6.5 * r}px); 
+  }
+}
+
+#shadow {
+  z-index: 1;
+  background: gray;
+  width: ${2 * r}px;
+  height: ${r / 2}px;
+  top: ${factor * 6}px;
+  left: ${w / 2 - r}px;
+  position: ${position};
+  clip-path: ellipse(${r}px ${r / 4}px);
+  animation: blur 1s ease-in forwards infinite alternate; 
+}
+
+@keyframes blur {
+  0% {
+    transform: scale(40%, 40%) /*translateX(${r * 6}px)*/;
+  }
+  ${squish}% {
+    transform: scale(100%, 100%);
+  }
+  100% {
+    transform: scale(120%, 120%);
+  }
+}
+
+</style>
+`
+
+    var ball = "<div id='ball'></div>"
+    var shadow = "<div id='shadow'></div>"
+    var div = `<div id='frame'>${ball + shadow}</div>`
+
+    document.getElementById('container').innerHTML = css + div
+
+  </script>
+</body>
