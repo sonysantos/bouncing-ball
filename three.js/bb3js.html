@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>Bouncing Ball with three.js</title>
+  <style>
+    body {
+      margin: 0;
+    }
+  </style>
+
+  <!-- <script async src="https://unpkg.com/es-module-shims@1.3.6/dist/es-module-shims.js"></script>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three/build/three.module.js"
+      }
+    }
+  </script> -->
+
+</head>
+
+<body>
+  <script src="js/three.js"></script>
+
+  <script>
+    // import * as THREE from 'three'
+
+    // gravity
+    const INITIAL_Y = 10
+    const G = 1
+    const FALLTIME = Math.sqrt(2 * (INITIAL_Y - 0) / G)
+    const FALLTIME2 = FALLTIME * 2
+
+    // gravity calc
+    function posY(time) {
+      if (time > FALLTIME) time -= FALLTIME2
+      return INITIAL_Y - G * time ** 2 / 2
+    }
+
+    // renderer
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.shadowMap.enabled = true
+    document.body.appendChild(renderer.domElement);
+
+    // background
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xaaccff)
+
+    // ball
+    const ballGeometry = new THREE.SphereGeometry();
+    const ballTexture = new THREE.TextureLoader().load('./ball.png')
+    const ballNormal = new THREE.TextureLoader().load('./ball_normal.png')
+    const ballMaterial = new THREE.MeshPhongMaterial({ map: ballTexture, normalMap: ballNormal });
+    const ball = new THREE.Mesh(ballGeometry, ballMaterial);
+    ball.position.set(0, INITIAL_Y, 0)
+    ball.rotation.x += Math.PI / 2;
+    ball.castShadow = true
+    scene.add(ball);
+
+    // ball 2
+    const ball2 = ball.clone();
+    ball2.position.set(0, -INITIAL_Y, 0)
+    // ball2.rotation.x += Math.PI / 2;
+    ball2.castShadow = false;
+    scene.add(ball2);
+
+    // ground
+    const planeGeometry = new THREE.PlaneGeometry(100, 100);
+    const planeTexture = new THREE.TextureLoader().load('marble.jpg?t=1')
+    const planeMaterial = new THREE.MeshPhongMaterial({ map: planeTexture, side: THREE.DoubleSide, transparent: true, opacity: 0.8 })
+    const plane = new THREE.Mesh(planeGeometry, planeMaterial)
+    plane.rotation.x += Math.PI / 2;
+    plane.position.set(0, 0, 0)
+    plane.receiveShadow = true
+    scene.add(plane)
+
+    // camera
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(0, 5, 10)
+    const center = new THREE.Vector3(0, 5, 0)
+
+    // light
+    const light = new THREE.PointLight(0xffffff, 1, 0, 2)
+    light.position.set(-50, 50, 50)
+    light.castShadow = true
+    scene.add(light)
+
+    // ambient light
+    const ambientLight = new THREE.AmbientLight(0xaaccff, 0.5)
+    scene.add(ambientLight)
+
+    // animation
+    var time = 0
+    var angle2 = 0
+    function animate() {
+      requestAnimationFrame(animate);
+
+      // ball rotation
+      time = (time + 1 / 15) % FALLTIME2
+      var angle = time / FALLTIME2 * Math.PI;
+      ball.rotation.y = -angle
+      ball2.rotation.y = angle
+
+      // ball y
+      var y = posY(time)
+
+      // smash
+      if (y < 1) {
+        var a = y ** 2 / 2 + 0.5
+        var yz = 1 + (1 - a) / 2
+        ball.scale.set(a, yz, yz)
+        ball2.scale.set(a, yz, yz)
+        y = a
+      }
+      else {
+        ball.scale.set(1, 1, 1)
+        ball2.scale.set(1, 1, 1)
+      }
+
+      ball.position.y = y
+      ball2.position.y = -y
+
+      // camera translation
+      angle2 = (angle2 + 0.002) % (2 * Math.PI)
+      camera.position.x = -10 * Math.sin(angle2 * 2)
+      // camera.position.y = 5 - 10 * Math.sin(angle2 * 2)
+      camera.position.z = 10 * Math.cos(angle2 * 2)
+      camera.lookAt(center)
+
+      renderer.render(scene, camera);
+    };
+
+    animate();
+
+  </script>
+
+</body>
+
+</html>
